@@ -1,0 +1,157 @@
+﻿@model IEnumerable<dynamic>
+
+@{
+    ViewData["Title"] = $"Partidas del jugador {ViewBag.PlayerName} (ID: {ViewBag.PlayerID})";
+}
+
+<h2 class="text-center text-white">
+    @if (ViewBag.PlayerName != null && ViewBag.PlayerID != null)
+    {
+        <text>Partidas del jugador: @ViewBag.PlayerName</text>
+    }
+    else
+    {
+        <text>No se encontró información del jugador.</text>
+    }
+</h2>
+
+<button data-bs-toggle="modal" data-bs-target="#modalCreate" class="btn btn-secondary btn-lg w-100 mt-3 mb-5">
+    Crear nueva partida
+</button>
+
+<table class="table table-dark table-hover rounded shadow-lg">
+    <thead>
+        <tr>
+            <th>ID Partida</th>
+            <th>Nombre del Jugador</th>
+            <th>Nivel de Dificultad</th>
+            <th>Fecha de Inicio</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody id="gamesTable">
+        @foreach (var game in Model)
+        {
+            <tr>
+                <td>@game.GameID</td>
+                <td>@game.PlayerName</td>
+                <td>@game.DifficultyLevel</td>
+                <td>@game.StartTime.ToString("dd/MM/yyyy HH:mm")</td>
+                <td>
+                    <form asp-controller="Boards" asp-action="CreateBoard" method="post" style="display:inline;">
+                        <input type="hidden" name="gameId" value="@game.GameID" />
+                        <input type="hidden" name="playerId" value="@ViewBag.PlayerID" />
+                        <button type="submit" class="btn btn-primary btn-sm">
+                            <i class="fas fa-play"></i> Jugar
+                        </button>
+                    </form>
+                    <form asp-action="DeleteConfirmed" method="post" onsubmit="return confirm('¿Estás seguro de que deseas eliminar esta partida?');" style="display:inline;">
+                        <input type="hidden" name="id" value="@game.GameID" />
+                        <button type="submit" class="btn btn-danger btn-sm">
+                            <i class="fas fa-trash-alt"></i> Borrar
+                        </button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<!-- Modal -->
+<div class="modal fade" id="modalCreate" tabindex="-1" aria-labelledby="modalCreateLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="bg-dark modal-content">
+            <form id="createGameForm" method="post">
+                <div class="modal-header">
+                    <h5 class="modal-title text-white">Crear Nueva Partida</h5>
+                    <button type="button" class="btn-close bg-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="PlayerID" value="@ViewBag.PlayerID" />
+                    <div class="form-group mb-3">
+                        <label for="DifficultyLevel" class="text-white">Selecciona la dificultad</label>
+                        <select class="form-control" id="DifficultyLevel" name="DifficultyLevel" required>
+                            <option value="">-- Selecciona una opción --</option>
+                            @foreach (var level in (IEnumerable<SelectListItem>)ViewBag.DifficultyLevels)
+                            {
+                                <option value="@level.Value">@level.Text</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById('createGameForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const formData = new FormData(e.target);
+        const response = await fetch('@Url.Action("Create", "Games")', {
+            method: 'POST',
+            body: formData
+        });
+
+        if (response.ok) {
+            const newGame = await response.json();
+            // Agregar la nueva partida a la tabla
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                        <td>${newGame.GameID}</td>
+                        <td>${newGame.PlayerName}</td>
+                        <td>${newGame.DifficultyLevel}</td>
+                        <td>${newGame.StartTime}</td>
+                        <td>
+                            <form asp-action="DeleteConfirmed" method="post" onsubmit="return confirm('¿Estás seguro de que deseas eliminar esta partida?');">
+                                <input type="hidden" name="id" value="${newGame.GameID}" />
+                                <button type="submit" class="btn btn-danger btn-sm">
+                                    <i class="fas fa-trash-alt"></i> Borrar
+                                </button>
+                            </form>
+                        </td>
+                    `;
+            document.getElementById('gamesTable').appendChild(row);
+
+            const modal = bootstrap.Modal.getInstance(document.getElementById('modalCreate'));
+            modal.hide();
+
+            // Elimina manualmente el fondo de Bootstrap si queda activo
+            document.querySelectorAll('.modal-backdrop').forEach(backdrop => backdrop.remove());
+            document.body.classList.remove('modal-open'); // Elimina la clase que bloquea el scroll
+            document.body.style.removeProperty('padding-right');
+        } else {
+            alert('Ocurrió un error al crear la partida.');
+        }
+    });
+
+    async function createBoard(gameId, playerId) {
+        console.log(`createBoard called with gameId: ${gameId}, playerId: ${playerId}`);
+
+        const response = await fetch('@Url.Action("CreateBoard", "Boards")', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ gameId, playerId })
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            console.log('Response data:', data);
+            if (data.success) {
+                alert('Nuevo tablero creado exitosamente.');
+                // Redirige a la vista de juego
+                window.location.href = `@Url.Action("Play", "Boards")?id=${gameId}`;
+            } else {
+                alert('No se pudo crear el tablero. Intenta nuevamente.');
+            }
+        } else {
+            console.error('Error al intentar crear el tablero:', response.statusText);
+            alert('Ocurrió un error al intentar crear el tablero.');
+        }
+    }
+</script>

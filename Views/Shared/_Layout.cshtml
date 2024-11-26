@@ -1,0 +1,115 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Battleship</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/Battleship.styles.css" asp-append-version="true" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.5/font/bootstrap-icons.min.css" rel="stylesheet">
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+            <div class="container-fluid">
+                <a class="navbar-brand" asp-controller="Home" asp-action="Index">Battleship</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav ms-auto">
+                        <li class="nav-item"><a class="nav-link" asp-controller="Home" asp-action="Index">Inicio</a></li>
+                        <li class="nav-item"><a class="nav-link"  asp-controller="Players" asp-action="Register">Crear jugador</a></li>
+                        <li class="nav-item"><a class="nav-link" asp-controller="Players" asp-action="Index">Lista jugador</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#">Noticias</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#">Iniciar Sesión</a></li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Contenedor del icono y slider fuera del header -->
+    <div class="d-flex align-items-center position-relative ms-3 mt-3">
+        <i id="soundToggleIcon" class="bi bi-volume-mute" style="cursor: pointer; font-size: 1.5rem;"></i>
+        <input type="range" id="volumeSlider" min="0" max="1" step="0.01" value="0.5"
+               style="display: none; position: absolute; top: 50%; left: 25px; transform: translateY(-50%); width: 120px;">
+    </div>
+    
+    <div class="container">
+        
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+    
+
+    <footer class=" bg-dark border-top footer text-muted">
+        <div class="container">
+            &copy; 2024 - Battleship - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+        </div>
+    </footer>
+  
+    @await RenderSectionAsync("Scripts", required: false)
+    <audio id="background-audio" loop>
+        <source src="/static/battle-ship-111902.mp3" type="audio/mp3">
+        Tu navegador no soporta el elemento de audio.
+    </audio>
+
+  
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const audio = document.getElementById("background-audio");
+            const soundToggleIcon = document.getElementById("soundToggleIcon");
+            const volumeSlider = document.getElementById("volumeSlider");
+            const soundControl = document.getElementById("soundControl");
+
+            // Sincronizar volumen inicial
+            audio.volume = volumeSlider.value = 0; // Asegurarse de que el volumen esté en 0 si la música no está sonando
+
+            // Mostrar/Ocultar la barra de volumen al hacer clic en el icono
+            soundToggleIcon.addEventListener("click", function () {
+                if (volumeSlider.style.display === 'block') {
+                    volumeSlider.style.display = 'none'; // Ocultar si ya está visible
+                } else {
+                    volumeSlider.style.display = 'block'; // Mostrar si está oculta
+                }
+            });
+
+            // Controlar el volumen desde el slider
+            volumeSlider.addEventListener("input", function () {
+                audio.volume = this.value; // Ajusta el volumen del audio según el valor del slider
+                if (audio.volume > 0 && audio.paused) {
+                    audio.play().catch((error) => console.error("Error al reproducir el audio:", error)); // Si el volumen es mayor a 0 y la música está en pausa, reproduce
+                }
+            });
+
+            // Cambiar el ícono de volumen según el estado del audio
+            audio.addEventListener("play", function () {
+                soundToggleIcon.classList.remove("bi-volume-mute");
+                soundToggleIcon.classList.add("bi-volume-up");
+            });
+
+            audio.addEventListener("pause", function () {
+                soundToggleIcon.classList.remove("bi-volume-up");
+                soundToggleIcon.classList.add("bi-volume-mute");
+            });
+
+            // Detectar clic fuera de la barra de volumen para cerrarla
+            document.addEventListener("click", function (event) {
+                if (!soundControl.contains(event.target)) {
+                    volumeSlider.style.display = 'none';  // Cerrar la barra de volumen si el clic es fuera
+                }
+            });
+        });
+
+
+    </script>
+</body>
+</html>

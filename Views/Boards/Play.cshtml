@@ -1,0 +1,50 @@
+﻿@model PlayViewModel
+
+@{
+    ViewData["Title"] = "Tablero de Juego";
+}
+
+<h2 class="text-center text-white">Tablero de la Partida @Model.GameID</h2>
+
+<div class="row">
+    <div class="col-md-6">
+        <h3 class="text-center text-white">Tu Tablero</h3>
+        <div class="board">
+            @for (int i = 0; i < Model.PlayerBoard.Length; i++)
+            {
+                <div class="row">
+                    @for (int j = 0; j < Model.PlayerBoard[i].Length; j++)
+                    {
+                        <div class="cell">
+                            @Model.PlayerBoard[i][j]
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+    <div class="col-md-6">
+        <h3 class="text-center text-white">Tablero de la Computadora</h3>
+        <div class="board">
+            @for (int i = 0; i < Model.AIBoard.Length; i++)
+            {
+                <div class="row">
+                    @for (int j = 0; j < Model.AIBoard[i].Length; j++)
+                    {
+                        <div class="cell">
+                            <!-- Muestra vacío o contenido si se hace un disparo -->
+                            @if (Model.AIBoard[i][j] == "~")
+                            {
+                                <span class="empty"></span>
+                            }
+                            else
+                            {
+                                <span class="ship"></span>
+                            }
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+</div>

@@ -1,0 +1,104 @@
+html {
+  font-size: 14px;
+}
+
+@media (min-width: 768px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+}
+
+html {
+  position: relative;
+  min-height: 100%;
+}
+
+body {
+    background:  url('/static/2_ships_2.png') no-repeat center center fixed;
+    background-size: cover;
+    margin: 0;
+    padding: 0;
+}
+
+
+
+.hero {
+    background: url('battlefield-bg.jpg') no-repeat center center;
+    background-size: cover;
+    height: 100vh;
+    color: aliceblue;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+    .hero h1 {
+        font-size: 8rem;
+        font-family:'Agency FB';
+    }
+    .hero p {
+        font-size: 5rem;
+        font-family: 'Agency FB';
+    }
+
+h2 {
+        font-size: 5rem;
+        font-family: 'Agency FB';
+    }
+h5{
+    
+    font-family: 'Agency FB';
+}
+
+label {
+    font-size: 2rem;
+    font-family: 'Agency FB';
+}
+input {
+    font-size: 2rem;
+    font-family: 'Agency FB';
+}
+
+.btn btn-custom{
+
+}
+
+.sound-icon {
+    cursor: pointer;
+    color: white;
+    font-size: 1.5rem;
+}
+
+    .sound-icon:hover {
+        color: lightgray;
+    }
+#soundControl {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+#soundToggleIcon {
+    cursor: pointer;
+    color: white;
+    font-size: 1.5rem;
+}
+
+#volumeSlider {
+    display: none; /* La barra de volumen está oculta por defecto */
+    position: absolute;
+    top: 50%;
+    left: 100%;
+    transform: translateY(-50%) translateX(5px); /* Mejor alineación */
+    width: 120px;
+    z-index: 10; /* Para asegurarse de que quede sobre otros elementos */
+}
+
+#volumeSlider {
+    cursor: pointer;
+}
